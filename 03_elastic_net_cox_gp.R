@@ -221,5 +221,3 @@ res_f <- fit_one_sex(df_f, "Female", ALPHAS, OUT_DIR)
 res_m <- fit_one_sex(df_m, "Male", ALPHAS, OUT_DIR) 
 
 cat("\nAll Done. Outputs in: \n", OUT_DIR, "\n", sep = "") 
-
-

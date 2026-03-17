@@ -31,7 +31,7 @@ N_FOLDS <- 10  # Previously set to 5 for speed
 PI_THRESH <- 0.8 
 
 # Choice of lambda inside each sample (lambda.min OR lambda.1se) 
-LAMBDA_CHOICE <- "lambda.1se" 
+LAMBDA_CHOICE <- "lambda.min" 
 
 # Choice of Alpha 
 # Either direct from the results of 03_elastic_net_cox_gp.R 
@@ -162,7 +162,7 @@ fit_stability_one_sex <- function(df_sex, sex_name) {
   fwrite(sel_dt, file.path(OUT_DIR, paste0("selection_proportions_", sex_name, "_", tag, ".csv"))) 
   fwrite(data.table(feature = stable_feats), file.path(OUT_DIR, paste0("stable_variables_", sex_name, "_", tag, ".csv"))) 
   
-  # Refit the unpenalised cox on stable set (with age) 
+  # Refit the unpenalised cox on stable set with age 
   rhs <- paste(c("age_at_entry", stable_feats), collapse = " + ") 
   fml <- as.formula(paste0("Surv(time, event) ~ ", rhs)) 
   
@@ -170,6 +170,7 @@ fit_stability_one_sex <- function(df_sex, sex_name) {
   dte <- df_sex[te] 
   
   # Function to fit an unpenalised Cox proportional hazards model 
+  # Using the Efron method to settle ties 
   cox_refit <- coxph(fml, data = dtr, ties = "efron") 
   
   lp_te <- predict(cox_refit, newdata = dte, type = "lp") 
@@ -207,6 +208,4 @@ fit_stability_one_sex(df_f, "Female")
 fit_stability_one_sex(df_m, "Male") 
 
 cat("\nAll done. Outputs in: \n", OUT_DIR, "\n", sep = "") 
-
-
 

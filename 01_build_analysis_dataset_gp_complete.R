@@ -288,6 +288,11 @@ gp_common[, bnf_name := bnf_code_to_name[as.character(bnf_dot_code)]]
 gp_common[is.na(bnf_name) | bnf_name == "", bnf_name := bnf_dot_code] 
 gp_common[, bnf_col := paste0("bnf_", safe_colname(bnf_name))] 
 
+dup <- gp_common[, .N, by = bnf_col][N > 1]
+if (nrow(dup) > 0) {
+  warning("Duplicate bnf_col names found after safe_colname(): ", nrow(dup))
+}
+
 # Define survival 
 first_rx <- gp_common[, .(first_rx_date = min(issue_date, na.rm = TRUE)), by = eid] 
 cat("First Rx date range: ", as.character(min(first_rx$first_rx_date)), "to", as.character(max(first_rx$first_rx_date)), "\n\n") 
@@ -348,6 +353,6 @@ saveRDS(data_full, OUT_RDS)
 fwrite(cat_prev, OUT_META) 
 
 cat("Saved: \n")
-cat(OUT_RDS, "\n", sep = "") 
-cat(OUT_META, "\n", sep = "") 
+cat("  ", OUT_RDS, "\n", sep = "") 
+cat("  ", OUT_META, "\n", sep = "") 
 cat("Done. \n")
