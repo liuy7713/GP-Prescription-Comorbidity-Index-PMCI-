@@ -50,3 +50,13 @@ The data used in this project are from the UK Biobank (Application ID: 677583) a
 `union_heatmap.R` produces a correlation heatmap over the union of naive and SHARP selected features for males.
  
 `upset_plot.R` produces the UpSet plot comparing feature selections across SHARP and RSF for both sexes.
+
+---
+
+## HPC Work Scripts 
+
+`rsf_tune_array.pbs` submits the job to the HPC for hyperparameter tuning of the Random Survival Forests using the file `07_rsf_tune_one.R`. 
+
+`rsf_refit_female.R` and `rsf_refit_male.R` submits separate jobs to the HPC for the final refit of the Random Survival Forests for each sex using the file `07_rsf_aggregate_refit_CI.R`. 
+
+`rsf_grid.csv` file contains the final hyperparameter tuning array for the Random Survival Forests. Previous hyperparameter tuning was conducted on a larger grids (not included here). 
