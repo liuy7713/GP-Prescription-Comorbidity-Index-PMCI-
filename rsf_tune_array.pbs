@@ -1,0 +1,33 @@
+#!/bin/bash
+#PBS -N rsf_tune
+#PBS -l select=1:ncpus=16:ompthreads=16:mem=60gb
+#PBS -l walltime=12:00:00
+#PBS -J 1-54
+#PBS -j oe
+#PBS -o rsf_logs/
+
+cd "$PBS_O_WORKDIR" || exit 1
+mkdir -p rsf_logs
+
+module purge
+module load miniforge/3
+eval "$(~/miniforge3/bin/conda shell.bash hook)"
+conda activate r_env
+
+NCPUS=${PBS_NCPUS:-${OMPTHREADS:-16}}
+export PBS_NCPUS=$NCPUS
+export OMP_NUM_THREADS=$NCPUS
+export MKL_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
+
+# IMPORTANT: make one shared run folder for the whole array
+export RUN_TAG="rsf_${PBS_JOBID%%[*}"
+
+TASK_ID=${PBS_ARRAY_INDEX:-${PBS_ARRAYID}}
+if [ -z "$TASK_ID" ]; then
+  echo "ERROR: PBS array index not found (PBS_ARRAY_INDEX and PBS_ARRAYID empty)"
+  exit 1
+fi
+
+Rscript Code/07_rsf_tune_one.R Code/rsf_grid.csv ${TASK_ID}
+
